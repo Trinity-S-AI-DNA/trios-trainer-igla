@@ -4,6 +4,7 @@ use std::time::Instant;
 
 use crate::model_hybrid_attn::{AttentionCache, HybridAttn};
 use crate::objective::{nca_entropy_loss, NcaObjective};
+use crate::neon_writer;
 
 pub const DEFAULT_IGLA_TARGET_BPB: f64 = 1.85;
 pub const GATE_FINAL_SEEDS: &[u64] = &[43, 44, 45];
@@ -732,6 +733,10 @@ pub fn run_single(args: &TrainArgs) -> Result<RunOutcome> {
             if ema_bpb < best_bpb && ema_bpb.is_finite() {
                 best_bpb = ema_bpb;
             }
+            // Write BPB sample to Neon (scarab mode)
+            if let Ok(canon_name) = std::env::var("CANON_NAME") {
+                neon_writer::bpb_sample(&canon_name, args.seed as i32, step as i32, vbpb as f32);
+            }
             println!(
                 "seed={} step={} val_bpb={:.4} ema_bpb={:.4} best={:.4} nca_h={:.3} t={:.1}s",
                 args.seed,
@@ -954,6 +959,10 @@ pub fn run_single_muon(args: &TrainArgs, use_cwd: bool) -> Result<RunOutcome> {
             ema_bpb = PHI_INV * ema_bpb + (1.0 - PHI_INV) * vbpb;
             if ema_bpb < best_bpb && ema_bpb.is_finite() {
                 best_bpb = ema_bpb;
+            }
+            // Write BPB sample to Neon (scarab mode)
+            if let Ok(canon_name) = std::env::var("CANON_NAME") {
+                neon_writer::bpb_sample(&canon_name, args.seed as i32, step as i32, vbpb as f32);
             }
             println!(
                 "{} seed={} step={} val_bpb={:.4} ema_bpb={:.4} best={:.4} nca_h={:.3} t={:.1}s",
