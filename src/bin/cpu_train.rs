@@ -32,6 +32,7 @@ fn rng_next(s: &mut u64) -> f32 {
     t * 2.0 - 1.0
 }
 
+#[derive(Clone)]
 struct BigramHash {
     embed: Vec<f32>,
     vocab: usize,
@@ -122,6 +123,7 @@ impl SmearGate {
     }
 }
 
+#[derive(Clone)]
 struct FFNLayer {
     w1: Vec<f32>,
     b1: Vec<f32>,
@@ -247,6 +249,7 @@ impl AdamW {
     }
 }
 
+#[derive(Clone)]
 struct CpuModel {
     embed: Vec<f32>,
     lm_head: Vec<f32>,
